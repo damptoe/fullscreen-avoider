@@ -1,8 +1,10 @@
 'use strict';
 
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 import Gtk from 'gi://Gtk';
+const LM = Main.layoutManager;
 
 import { ExtensionPreferences, gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
@@ -11,13 +13,22 @@ export default class FullscreenAvoiderPreferences extends ExtensionPreferences {
 		let settings = this.getSettings();
 		const page = Adw.PreferencesPage.new();
 
-		const group = Adw.PreferencesGroup.new();
-		group.set_title(_("Settings"));
+		const settingsGroup = Adw.PreferencesGroup.new();
+		settingsGroup.set_title(_("Settings"));
 
-		page.add(group);
+		page.add(settingsGroup);
 
-		group.add(buildSwitcher(settings, 'move-hot-corners', _('Move Hot Corners:')));
-		group.add(buildSwitcher(settings, 'move-notifications', _('Move Notifications:')));
+		settingsGroup.add(buildSwitcher(settings, 'move-hot-corners', _('Move Hot Corners:')));
+		settingsGroup.add(buildSwitcher(settings, 'move-notifications', _('Move Notifications:')));
+
+		const monitorsGroup = Adw.PreferencesGroup.new();
+		monitorsGroup.set_title(_("Show Top Bar On"));
+
+		page.add(monitorsGroup);
+		
+		for (const monitor of LM.monitors) {
+		    monitorsGroup.add(buildSwitcher(settings, `allow-monitor-${monitor.index}`, _(`Monitor ${monitor.index}:`)));
+		}
 
 		window.add(page)
 	}
